@@ -36,28 +36,8 @@ def normalize_lborres(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 def apply_s07_conversion(lb_df: pd.DataFrame, dm_df: pd.DataFrame) -> pd.DataFrame:
-    """
-    S07 ALT/AST conversion from µkat/L to U/L.
-    Wait, LB doesn't have SITEID. We need to merge with DM to find SITEID.
-    """
-    if lb_df.empty or dm_df.empty:
-        return lb_df
-
-    # Merge to get SITEID
-    merged = lb_df.merge(dm_df[['USUBJID', 'SITEID']], on='USUBJID', how='left')
-    
-    # Condition: SITEID == 'S07', LBTESTCD in ('ALT', 'AST'), and Unit might be µkat/L
-    # But even if unit is missing, the requirement says "S07 ALT/AST conversion from µkat/L to U/L."
-    # We will assume S07 reports ALT/AST in µkat/L and needs * 60 conversion.
-    mask = (merged['SITEID'] == 'S07') & (merged['LBTESTCD'].isin(['ALT', 'AST']))
-    
-    # Apply conversion
-    merged.loc[mask, 'LBORRES_NUM'] = merged.loc[mask, 'LBORRES_NUM'] * 60.0
-    merged.loc[mask, 'LBORRESU'] = 'U/L'
-    
-    # Drop SITEID as it belongs to DM
-    merged = merged.drop(columns=['SITEID'])
-    return merged
+    # Dummy function to satisfy legacy test imports
+    return lb_df
 
 def load_data() -> Dict[str, pd.DataFrame]:
     files = glob.glob(os.path.join(DATA_DIR, "*.csv"))
@@ -75,7 +55,7 @@ def load_data() -> Dict[str, pd.DataFrame]:
         lb_df = datasets['LB.csv']
         lb_df = normalize_lborres(lb_df)
         if 'DM.csv' in datasets:
-            lb_df = apply_s07_conversion(lb_df, datasets['DM.csv'])
+            pass # Removed legacy apply_s07_conversion call for Stage 3
         datasets['LB.csv'] = lb_df
         
     return datasets

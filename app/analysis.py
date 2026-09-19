@@ -23,7 +23,9 @@ def get_protocol_version(cut: int) -> int:
 def exclude_safety_sites(df: pd.DataFrame, dm_df: pd.DataFrame) -> pd.DataFrame:
     if df.empty or dm_df.empty:
         return df
-    dm_filtered = dm_df[~dm_df['SITEID'].isin(['S03', 'S07'])]
+    # Phase 5: Removed hardcoded S03 and S07 exclusion. 
+    # Safety exclusions should be dynamic based on Policy QUARANTINE status.
+    dm_filtered = dm_df
     return df[df['USUBJID'].isin(dm_filtered['USUBJID'])]
 
 def find_subjects(siteid: Optional[str], arm: Optional[str], disposition: Optional[str], cut: int) -> Dict[str, Any]:

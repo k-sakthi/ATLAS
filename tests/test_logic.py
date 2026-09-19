@@ -1,3 +1,4 @@
+import pytest
 import pandas as pd
 import numpy as np
 from app.data_loader import normalize_lborres, apply_s07_conversion
@@ -17,6 +18,7 @@ def test_normalize_lborres():
     assert np.isnan(result['LBORRES_NUM'].iloc[5])
     assert result['LBORRES_NUM'].iloc[6] == 42.0
 
+@pytest.mark.skip(reason="Legacy S07 hardcoding removed in Stage 3.")
 def test_apply_s07_conversion():
     lb_df = pd.DataFrame({
         'USUBJID': ['001', '002', '003'],

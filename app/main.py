@@ -33,6 +33,9 @@ app.include_router(router, prefix="/api/v1")
 from stage2.api import router as stage2_router
 app.include_router(stage2_router, prefix="/api/v1/stage2")
 
+from stage3.api import router as stage3_router
+app.include_router(stage3_router, prefix="/api/v1/stage3")
+
 @app.get("/health")
 def health_check():
     return {"status": "ok"}

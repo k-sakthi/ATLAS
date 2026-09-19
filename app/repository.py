@@ -57,14 +57,6 @@ def apply_cuts_and_corrections(domain_df: pd.DataFrame, domain_name: str, target
                 
                 if field == 'LBORRES' and 'LBORRES_NUM' in df.columns:
                     num_val = float(new_val)
-                    if domain_str == 'LB':
-                        if 'DM.csv' in DATASETS:
-                            dm_df = DATASETS['DM.csv']
-                            if (dm_df['USUBJID'] == subj).any() and dm_df[dm_df['USUBJID'] == subj]['SITEID'].iloc[0] == 'S07':
-                                row_data = df[mask]
-                                if not row_data.empty and row_data.iloc[0]['LBTESTCD'] in ['ALT', 'AST']:
-                                    num_val = num_val * 60.0
-                                    df.loc[mask, 'S07_CONVERSION_APPLIED'] = 'YES'
                     df.loc[mask, 'LBORRES_NUM'] = num_val
                     
     return df

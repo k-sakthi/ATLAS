@@ -24,8 +24,9 @@ const mainItems = [
 ];
 
 const monitorItems = [
+  { name: "Surveillance (Stage 3)", href: "/surveillance", icon: Activity },
   { name: "ReviewCrew", href: "/monitor", icon: Workflow },
-  { name: "Human Gate", href: "/monitor/human-gate", icon: ShieldCheck }, // wait, where is Human gate? Let's use /monitor/human-gate
+  { name: "Human Gate", href: "/monitor/human-gate", icon: ShieldCheck }, 
   { name: "Cycle Reports", href: "/monitor/cycle", icon: FileText },
   { name: "Queries", href: "/monitor/queries", icon: HelpCircle },
   { name: "Trace", href: "/monitor/trace", icon: Fingerprint },

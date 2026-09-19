@@ -130,7 +130,6 @@ If an API/tool fails, say "The deterministic analysis service could not be reach
 
 For Hy's Law, preserve the exact label "protocol-defined screening signal". Do not describe it as a confirmed diagnosis.
 Ground your answers with explicit evidence from the tools (include values, dates, ULN, source files).
-S03 and S07 findings excluded by the analysis engine must remain excluded. Do not override the API.
 ''',
                 tools=tools,
             )
