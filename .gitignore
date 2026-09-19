@@ -1,0 +1,43 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Codex / local dependencies
+.codex_pydeps/
+
+# Node
+node_modules/
+.next/
+frontend/node_modules/
+frontend/.next/
+
+# Local n8n installation
+n8n_local/
+
+# Local Node binaries
+node-v18/
+node-v18.zip
+
+# Runtime/debug files
+debug.log
+debug_error.txt
+debug_error_agent.txt
+env_debug.txt
+
+# Temporary scripts
+scratch/
+fix.py
+test_api_script.py
+generate_n8n.py
+
+# Stage 2 runtime memory
+data/stage2_memory.json

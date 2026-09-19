@@ -1,0 +1,364 @@
+{
+  "name": "ATLAS \u2014 Monitor Cycle Automation",
+  "nodes": [
+    {
+      "id": "46a17963-0e64-438d-b4ef-cab73ddc54cf",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "path": "cycle/run",
+        "httpMethod": "POST",
+        "responseMode": "lastNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "8699ee06-cfef-46e8-90e1-0bb9f774271e",
+      "name": "Cut Context",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        200,
+        0
+      ],
+      "parameters": {
+        "values": {
+          "number": [
+            {
+              "name": "cut",
+              "value": "={{$json.body.cut}}"
+            },
+            {
+              "name": "protocol_version",
+              "value": "={{$json.body.protocol_version}}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "457b957e-f240-48b1-af86-e58ef7b526e4",
+      "name": "Call ATLAS ReviewCrew",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        400,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:8000/api/v1/stage2/run",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "cut",
+              "value": "={{$json.cut}}"
+            },
+            {
+              "name": "protocol_version",
+              "value": "={{$json.protocol_version}}"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "589e5fd9-af7c-443c-90aa-c7a366f36c19",
+      "name": "Check Report",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [
+        600,
+        0
+      ],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "rules": [
+            {
+              "conditions": {
+                "number": [
+                  {
+                    "value1": "={{$json.escalations}}",
+                    "operation": "larger",
+                    "value2": 0
+                  }
+                ]
+              },
+              "output": 0
+            },
+            {
+              "conditions": {
+                "number": [
+                  {
+                    "value1": "={{$json.queries}}",
+                    "operation": "larger",
+                    "value2": 0
+                  }
+                ]
+              },
+              "output": 1
+            }
+          ]
+        },
+        "fallbackOutput": 2
+      }
+    },
+    {
+      "id": "18e25e76-0d43-49e4-8066-0f843163cd63",
+      "name": "Notify Medical Monitor",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        800,
+        -100
+      ],
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "notification",
+              "value": "Pending escalations require review"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "564950e7-bd16-4e70-9e67-079547632c8e",
+      "name": "Notify Data Manager",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        800,
+        100
+      ],
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "notification",
+              "value": "New queries require attention"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "a340519b-90a2-4144-9556-89b5f4fca469",
+      "name": "Merge Notifications",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 1,
+      "position": [
+        1000,
+        0
+      ],
+      "parameters": {
+        "mode": "wait"
+      }
+    },
+    {
+      "id": "0da2a503-320f-44a3-8751-c3675c436a73",
+      "name": "Wait for Human Gate",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        1200,
+        0
+      ],
+      "parameters": {
+        "path": "escalation/decision",
+        "httpMethod": "POST",
+        "responseMode": "lastNode",
+        "options": {}
+      }
+    },
+    {
+      "id": "1cad6f15-331f-42a9-8e3c-c8911b6364ec",
+      "name": "Send Decision to ATLAS",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        1400,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{'http://127.0.0.1:8000/api/v1/stage2/escalations/' + $json.body.id + '/decision'}}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "decision",
+              "value": "={{$json.body.decision}}"
+            },
+            {
+              "name": "reason",
+              "value": "={{$json.body.reason}}"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "b37244db-6723-49c5-aa57-ef147e5a6977",
+      "name": "Get Final Review Report",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        1600,
+        0
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "={{'http://127.0.0.1:8000/api/v1/stage2/report/' + $json.body.cycle}}",
+        "options": {}
+      }
+    },
+    {
+      "id": "611156d8-3c7e-44ba-83b5-82a8160f1b89",
+      "name": "Notify Cycle Complete",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        1800,
+        0
+      ],
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "status",
+              "value": "Automation Cycle Complete"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Cut Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cut Context": {
+      "main": [
+        [
+          {
+            "node": "Call ATLAS ReviewCrew",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call ATLAS ReviewCrew": {
+      "main": [
+        [
+          {
+            "node": "Check Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Report": {
+      "main": [
+        [
+          {
+            "node": "Notify Medical Monitor",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notify Data Manager",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge Notifications",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Medical Monitor": {
+      "main": [
+        [
+          {
+            "node": "Merge Notifications",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Data Manager": {
+      "main": [
+        [
+          {
+            "node": "Merge Notifications",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for Human Gate": {
+      "main": [
+        [
+          {
+            "node": "Send Decision to ATLAS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Decision to ATLAS": {
+      "main": [
+        [
+          {
+            "node": "Get Final Review Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Final Review Report": {
+      "main": [
+        [
+          {
+            "node": "Notify Cycle Complete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {}
+}
